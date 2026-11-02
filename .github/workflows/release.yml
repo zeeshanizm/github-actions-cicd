@@ -1,0 +1,17 @@
+name: Release - Source Archive
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Package source
+        run: tar --exclude=.git --exclude=.github -czf source-${GITHUB_REF_NAME}.tar.gz app tests Dockerfile requirements.txt README.md
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" "source-${GITHUB_REF_NAME}.tar.gz" --generate-notes --verify-tag
